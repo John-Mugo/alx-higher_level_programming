@@ -1,175 +1,181 @@
 #!/usr/bin/python3
-# base.py
-"""Defines a base model class."""
-import json
-import csv
-import turtle
+"""Rectangle class"""
+from models.base import Base
 
 
-class Base:
-    """Represent the base model.
-    Represents the "base" for all other classes in project 0x0C*.
-    Attributes:
-        __nb_objects (int): The number of instantiated Bases.
-    """
+class Rectangle(Base):
+    """Rectangle class"""
 
-    __nb_objects = 0
-
-    def __init__(self, id=None):
-        """Initialize a new Base.
+    def __init__(self, width, height, x=0, y=0, id=None):
+        """__init__ method of Rectangle class
         Args:
-            id (int): The identity of the new Base.
+            id (int): id of rectangle object
+            width (int): width of rectangle
+            height (int): height of rectangle
+            x (int): x-coordinate
+            y (int): y-coordinate
         """
-        if id is not None:
-            self.id = id
-        else:
-            Base.__nb_objects += 1
-            self.id = Base.__nb_objects
+        super().__init__(id)
+        self.width = width
+        self.height = height
+        self.x = x
+        self.y = y
 
-    @staticmethod
-    def to_json_string(list_dictionaries):
-        """Return the JSON serialization of a list of dicts.
+    @property
+    def width(self):
+        """Rectangle width getter method"""
+        return self.__width
+
+    @property
+    def height(self):
+        """Rectangle height getter method"""
+        return self.__height
+
+    @property
+    def x(self):
+        """Rectangle x getter method"""
+        return self.__x
+
+    @property
+    def y(self):
+        """Rectangle y getter method"""
+        return self.__y
+
+    @width.setter
+    def width(self, width):
+        """Width setter
         Args:
-            list_dictionaries (list): A list of dictionaries.
+            width (int): width of rectangle
+        Raises:
+            TypeError: if not an integer
+            ValueError: if not greater than zero
         """
-        if list_dictionaries is None or list_dictionaries == []:
-            return "[]"
-        return json.dumps(list_dictionaries)
 
-    @classmethod
-    def save_to_file(cls, list_objs):
-        """Write the JSON serialization of a list of objects to a file.
+        if type(width) is not int:
+            raise TypeError("width must be an integer")
+        if width <= 0:
+            raise ValueError("width must be > 0")
+        self.__width = width
+
+    @height.setter
+    def height(self, height):
+        """Height setter
         Args:
-            list_objs (list): A list of inherited Base instances.
+            height (int): height of rectangle
+        Raises:
+            TypeError: if not an integer
+            ValueError: if not greater than zero
         """
-        filename = cls.__name__ + ".json"
-        with open(filename, "w") as jsonfile:
-            if list_objs is None:
-                jsonfile.write("[]")
-            else:
-                list_dicts = [o.to_dictionary() for o in list_objs]
-                jsonfile.write(Base.to_json_string(list_dicts))
 
-    @staticmethod
-    def from_json_string(json_string):
-        """Return the deserialization of a JSON string.
+        if type(height) is not int:
+            raise TypeError("height must be an integer")
+        if height <= 0:
+            raise ValueError("height must be > 0")
+        self.__height = height
+
+    @x.setter
+    def x(self, x):
+        """x-coordinate setter
         Args:
-            json_string (str): A JSON str representation of a list of dicts.
+            x (int): x-coordinate of rectangle
+        Raises:
+            TypeError: if not an integer
+            ValueError: if negative
+        """
+
+        if type(x) is not int:
+            raise TypeError("x must be an integer")
+        if x < 0:
+            raise ValueError("x must be >= 0")
+        self.__x = x
+
+    @y.setter
+    def y(self, y):
+        """y-coordinate setter
+        Args:
+            y (int): y-coordinate of rectangle
+        Raises:
+            TypeError: if not an integer
+            ValueError: if negative
+        """
+
+        if type(y) is not int:
+            raise TypeError("y must be an integer")
+        if y < 0:
+            raise ValueError("y must be >= 0")
+        self.__y = y
+
+    def area(self):
+        """Area of rectangle
         Returns:
-            If json_string is None or empty - an empty list.
-            Otherwise - the Python list represented by json_string.
+            area of rectangle
         """
-        if json_string is None or json_string == "[]":
-            return []
-        return json.loads(json_string)
+        return self.width * self.height
 
-    @classmethod
-    def create(cls, **dictionary):
-        """Return a class instantied from a dictionary of attributes.
+    def display(self):
+        """Prints # representation of rectangle"""
+        rows = self.height
+        columns = self.width
+        for _ in range(self.y):
+            print()
+        for r in range(rows):
+            print(' ' * self.x, end='')
+            for c in range(columns):
+                print('#', end='')
+            print()
+
+    def __str__(self):
+        """Returns string representation of rectangle object"""
+        return "[{}] ({:d}) {:d}/{:d} - {:d}/{:d}".format(
+            type(self).__name__,
+            self.id, self.x, self.y, self.width, self.height)
+
+    def update(self, *args, **kwargs):
+        """Update attributes
         Args:
-            **dictionary (dict): Key/value pairs of attributes to initialize.
+            args: arguments
+            kwargs: key-word arguments
         """
-        if dictionary and dictionary != {}:
-            if cls.__name__ == "Rectangle":
-                new = cls(1, 1)
-            else:
-                new = cls(1)
-            new.update(**dictionary)
-            return new
+        if len(args) > 0:
+            for i, arg in enumerate(args):
+                if i == 0:
+                    self.id = arg
+                if i == 1:
+                    self.width = arg
+                if i == 2:
+                    self.height = arg
+                if i == 3:
+                    self.x = arg
+                if i == 4:
+                    self.y = arg
+        elif len(kwargs) > 0:
+            for k, v in kwargs.items():
+                if k == 'id':
+                    self.id = v
+                if k == 'width':
+                    self.width = v
+                if k == 'height':
+                    self.height = v
+                if k == 'x':
+                    self.x = v
+                if k == 'y':
+                    self.y = v
 
-    @classmethod
-    def load_from_file(cls):
-        """Return a list of classes instantiated from a file of JSON strings.
-        Reads from `<cls.__name__>.json`.
+    def to_dictionary(self):
+        """Dictionary representation of a rectangle
         Returns:
-            If the file does not exist - an empty list.
-            Otherwise - a list of instantiated classes.
+            dictionary of attributes
         """
-        filename = str(cls.__name__) + ".json"
-        try:
-            with open(filename, "r") as jsonfile:
-                list_dicts = Base.from_json_string(jsonfile.read())
-                return [cls.create(**d) for d in list_dicts]
-        except IOError:
-            return []
-
-    @classmethod
-    def save_to_file_csv(cls, list_objs):
-        """Write the CSV serialization of a list of objects to a file.
-        Args:
-            list_objs (list): A list of inherited Base instances.
-        """
-        filename = cls.__name__ + ".csv"
-        with open(filename, "w", newline="") as csvfile:
-            if list_objs is None or list_objs == []:
-                csvfile.write("[]")
-            else:
-                if cls.__name__ == "Rectangle":
-                    fieldnames = ["id", "width", "height", "x", "y"]
-                else:
-                    fieldnames = ["id", "size", "x", "y"]
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                for obj in list_objs:
-                    writer.writerow(obj.to_dictionary())
-
-    @classmethod
-    def load_from_file_csv(cls):
-        """Return a list of classes instantiated from a CSV file.
-        Reads from `<cls.__name__>.csv`.
-        Returns:
-            If the file does not exist - an empty list.
-            Otherwise - a list of instantiated classes.
-        """
-        filename = cls.__name__ + ".csv"
-        try:
-            with open(filename, "r", newline="") as csvfile:
-                if cls.__name__ == "Rectangle":
-                    fieldnames = ["id", "width", "height", "x", "y"]
-                else:
-                    fieldnames = ["id", "size", "x", "y"]
-                list_dicts = csv.DictReader(csvfile, fieldnames=fieldnames)
-                list_dicts = [dict([k, int(v)] for k, v in d.items())
-                              for d in list_dicts]
-                return [cls.create(**d) for d in list_dicts]
-        except IOError:
-            return []
-
-    @staticmethod
-    def draw(list_rectangles, list_squares):
-        """Draw Rectangles and Squares using the turtle module.
-        Args:
-            list_rectangles (list): A list of Rectangle objects to draw.
-            list_squares (list): A list of Square objects to draw.
-        """
-        turt = turtle.Turtle()
-        turt.screen.bgcolor("#b7312c")
-        turt.pensize(3)
-        turt.shape("turtle")
-
-        turt.color("#ffffff")
-        for rect in list_rectangles:
-            turt.showturtle()
-            turt.up()
-            turt.goto(rect.x, rect.y)
-            turt.down()
-            for i in range(2):
-                turt.forward(rect.width)
-                turt.left(90)
-                turt.forward(rect.height)
-                turt.left(90)
-            turt.hideturtle()
-
-        turt.color("#b5e3d8")
-        for sq in list_squares:
-            turt.showturtle()
-            turt.up()
-            turt.goto(sq.x, sq.y)
-            turt.down()
-            for i in range(2):
-                turt.forward(sq.width)
-                turt.left(90)
-                turt.forward(sq.height)
-                turt.left(90)
-            turt.hideturtle()
-
-        turtle.exitonclick()
+        obj_dict = {}
+        for k, v in self.__dict__.items():
+            if k == '_Rectangle__width':
+                obj_dict['width'] = v
+            if k == 'id':
+                obj_dict['id'] = v
+            if k == '_Rectangle__y':
+                obj_dict['y'] = v
+            if k == '_Rectangle__height':
+                obj_dict['height'] = v
+            if k == '_Rectangle__x':
+                obj_dict['x'] = v
+        return obj_dict
